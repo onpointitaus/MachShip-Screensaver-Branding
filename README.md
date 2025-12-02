@@ -1,1 +1,1 @@
-# MachShip-Screensaver-Bradning
+# MachShip-Screensaver-Branding
