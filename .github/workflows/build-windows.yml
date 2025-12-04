@@ -1,0 +1,79 @@
+name: Build Windows Screensaver
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Restore
+        run: dotnet restore "BrandScreensaver.csproj"
+
+      - name: Build
+        run: dotnet build "BrandScreensaver.csproj" -c Release --no-restore
+
+      - name: Publish self-contained (win-x64)
+        run: |
+          dotnet publish "BrandScreensaver.csproj" -c Release -r win-x64 --self-contained true /p:PublishSingleFile=false
+          mkdir output
+          robocopy bin\Release\net6.0-windows\win-x64\publish output /E
+
+      - name: Download WebView2 Evergreen bootstrapper
+        if: always()
+        shell: pwsh
+        run: |
+          $payloadDir = "installer\payload"
+          New-Item -ItemType Directory -Force -Path $payloadDir | Out-Null
+          $wv2 = Join-Path $payloadDir "MicrosoftEdgeWebView2Setup.exe"
+          if (-Not (Test-Path $wv2)) {
+            Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?LinkId=2124703" -OutFile $wv2 -UseBasicParsing
+          }
+
+      - name: Install WiX (Chocolatey)
+        shell: pwsh
+        run: |
+          choco install wix -y --no-progress
+          RefreshEnv
+
+      - name: Build MSI and Bundle with WiX
+        shell: pwsh
+        run: |
+          .\installer\build.ps1
+
+      - name: Package publish output
+        shell: pwsh
+        run: |
+          if (Test-Path publish-zip.zip) { Remove-Item publish-zip.zip }
+          Compress-Archive -Path output\* -DestinationPath publish-zip.zip -Force
+
+      - name: Upload publish artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: machship-publish-windows
+          path: publish-zip.zip
+
+      - name: Upload MSI artifact (if present)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: machship-msi
+          path: installer\Product.msi
+
+      - name: Upload Bundle artifact (if present)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: machship-bundle
+          path: installer\MachShipScreensaverBundle.exe
