@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:bal="http://schemas.microsoft.com/wix/BalExtension">
+  <Bundle Name="MachShip Screensaver Bundle" Version="1.0.0.0" Manufacturer="MachShip" UpgradeCode="PUT-ANOTHER-GUID-HERE">
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />
+
+    <Chain>
+      <ExePackage Id="WebView2Runtime" SourceFile="payload\MicrosoftEdgeWebView2Setup.exe" DisplayName="Microsoft Edge WebView2 Runtime (Evergreen Bootstrapper)" PerMachine="yes" Vital="yes" />
+      <MsiPackage Id="MachShipMsi" SourceFile="Product.msi" DisplayName="MachShip Screensaver MSI" />
+    </Chain>
+  </Bundle>
+</Wix>

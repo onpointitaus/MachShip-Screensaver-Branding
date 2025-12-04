@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="MachShip Screensaver" Language="1033" Version="1.0.0.0" Manufacturer="MachShip" UpgradeCode="PUT-GUID-HERE">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine"/>
+
+    <MediaTemplate/>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="WindowsFolder">
+        <Directory Id="SystemFolder">
+          <Directory Id="ScreensaverFolder" Name="System32" />
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="MachShip Screensaver" />
+      </Directory>
+    </Directory>
+
+    <DirectoryRef Id="SystemFolder">
+      <Component Id="ScreensaverExe" Guid="*">
+        <File Id="ScreensaverFile" Source="$(var.OutputPath)\MachShip.Screensaver.exe" KeyPath="yes" Name="MachShip.scr" />
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="ProductFeature" Title="MachShip Screensaver" Level="1">
+      <ComponentRef Id="ScreensaverExe" />
+    </Feature>
+  </Product>
+</Wix>
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="MachShip Screensaver" Language="1033" Version="1.0.0.0" Manufacturer="MachShip" UpgradeCode="PUT-GUID-HERE">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" Platform="x64" />
+
+    <MediaTemplate />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="WindowsFolder">
+        <Directory Id="SystemFolder">
+          <Directory Id="MachShipDir" Name="MachShipScreensaver" />
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <DirectoryRef Id="MachShipDir">
+      <Component Id="MachShipExe" Guid="*">
+        <File Id="MachShipScr" Source="..\bin\Release\net6.0-windows\win-x64\publish\BrandScreensaver.exe" Name="MachShipScreensaver.scr" KeyPath="yes" />
+      </Component>
+      <Component Id="MachShipContent" Guid="*">
+        <CreateDirectory />
+        <File Id="IndexHtml" Source="..\content\index.html" Name="index.html" KeyPath="no" />
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="ProductFeature" Title="MachShip Screensaver" Level="1">
+      <ComponentRef Id="MachShipExe" />
+      <ComponentRef Id="MachShipContent" />
+    </Feature>
+
+    <Component Id="RegistryPolicy" Guid="*">
+      <RegistryKey Root="HKLM" Key="Software\Policies\Microsoft\Windows\Control Panel\Desktop">
+        <RegistryValue Name="ScreenSaveActive" Type="string" Value="1" KeyPath="yes" />
+        <RegistryValue Name="SCRNSAVE.EXE" Type="string" Value="[SystemFolder]MachShipScreensaver\MachShipScreensaver.scr" />
+        <RegistryValue Name="ScreenSaveTimeOut" Type="string" Value="600" />
+        <RegistryValue Name="ScreenSaverIsSecure" Type="string" Value="1" />
+      </RegistryKey>
+    </Component>
+
+    <Feature Id="PolicyFeature" Title="Screensaver Policy (optional)" Level="1">
+      <ComponentRef Id="RegistryPolicy" />
+    </Feature>
+
+  </Product>
+</Wix>
