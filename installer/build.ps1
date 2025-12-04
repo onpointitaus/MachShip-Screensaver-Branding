@@ -18,6 +18,13 @@ if (-not (Test-Path $OutputDir)) { New-Item -ItemType Directory -Path $OutputDir
 if (Test-Path Bundle.wxs) {
     & candle.exe -dOutputPath=$OutputDir Bundle.wxs -o "$OutputDir\Bundle.wixobj"
     & light.exe -out "$OutputDir\Bundle.exe" "$OutputDir\Bundle.wixobj"
+    # also copy bundle to the installer root with expected name
+    Copy-Item -Path "$OutputDir\Bundle.exe" -Destination "$here\MachShipScreensaverBundle.exe" -Force
+
+# Copy MSI to installer root so CI upload step can find it at installer\Product.msi
+if (Test-Path "$OutputDir\Product.msi") {
+    Copy-Item -Path "$OutputDir\Product.msi" -Destination "$here\Product.msi" -Force
+}
 }
 
 Pop-Location
